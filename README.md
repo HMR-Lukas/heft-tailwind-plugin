@@ -66,7 +66,7 @@ import "./styles/tailwind.generated.css";
 
 ### Contributing
 
-Contriitions are welcome! Whether bug reports, ideas or pull requests
+Contributions are welcome! Whether bug reports, ideas or pull requests
 
 - Issues: describe the problem/idea and steps to reproduce if possible.
 - Pull Requests: keep them focused, explain the “why”, and include a small repro or log if helpful.
