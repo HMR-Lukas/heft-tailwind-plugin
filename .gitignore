@@ -1,0 +1,34 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+*.tgz
+
+# Build-/Cache
+lib/
+dist/
+temp/
+coverage/
+.nyc_output/
+.pnpm-store/
+.rush/
+
+# Env/Secrets
+.env
+.env.*
+!.env.example
+
+# OS/Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+*.tsbuildinfo
+
+.storybook/
+docs/.vitepress/cache/
+docs/.docusaurus/

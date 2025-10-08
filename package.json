@@ -1,0 +1,43 @@
+{
+  "name": "@derlesh/heft-tailwind-plugin",
+  "version": "1.0.0",
+  "description": "Heft task to prebuild TaildwindCSS v4 with PostCSS",
+  "type": "commonjs",
+  "main": "lib/TailwindPlugin.js",
+  "exports": {
+    ".": "./lib/TailwindPlugin.js"
+  },
+  "files": [
+    "lib",
+    "heft-plugin.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@tailwindcss/postcss": ">=4.0.0",
+    "postcss": ">=8.4.0"
+  },
+  "keywords": [
+    "heft-plugin",
+    "heft-tailwind-plugin",
+    "src",
+    "postcss",
+    "tailwind",
+    "javascript",
+    "spfx"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/derlesh/heft-tailwind-plugin.git"
+  },
+  "scripts": {
+    "build": "shx rm -rf lib && shx mkdir -p lib && shx cp src/*.js lib/",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "shx": "^0.3.4"
+  }
+}
