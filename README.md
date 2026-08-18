@@ -2,6 +2,24 @@
 
 [Tailwind CSS v4](https://tailwindcss.com/) as a regular [Heft](https://heft.rushstack.io/) task plugin for SharePoint Framework 1.22 and newer. PostCSS is the only compiler used by the plugin.
 
+## Quickstart
+
+Install the plugin
+
+```sh
+npm i -D @hmr-lukas/heft-tailwind-plugin
+```
+
+After successfull installation run:
+
+```sh
+npx heft-tailwind init
+```
+
+This should create all necessary data required for running TailwindCSS v4 in your SPFx project.
+
+Add the generated `src/global.css` to your `XY..WebPart.ts` with `import ../../global.css`
+
 ## Install
 
 ```sh
