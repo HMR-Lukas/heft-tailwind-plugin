@@ -14,7 +14,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "heft-tailwind": "./dist/cli.js"
+    "heft-tailwind": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -28,8 +28,7 @@
     "node": ">=22"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "keywords": [
     "heft-plugin",
