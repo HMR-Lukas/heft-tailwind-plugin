@@ -1,6 +1,6 @@
 {
   "name": "@hmr-lukas/heft-tailwind-plugin",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Tailwind CSS v4 task plugin for Heft and SharePoint Framework projects.",
   "type": "commonjs",
   "main": "./dist/TailwindPlugin.js",

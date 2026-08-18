@@ -1,5 +1,11 @@
 # @hmr-lukas/heft-tailwind-plugin
 
+## 1.1.1
+
+### Patch Changes
+
+- Added quickstart guide
+
 ## 1.1.0
 
 ### Minor Changes
