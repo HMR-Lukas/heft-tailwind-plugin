@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Heft Tailwind Plugin Options",
+  "description": "Options for @hmr-lukas/heft-tailwind-plugin.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "input": {
+      "type": "string",
+      "minLength": 1,
+      "default": "src/global.tailwind.css",
+      "description": "Input CSS path, relative to projectBase."
+    },
+    "output": {
+      "type": "string",
+      "minLength": 1,
+      "default": "src/global.css",
+      "description": "Generated CSS path, relative to projectBase."
+    },
+    "projectBase": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project base path. Relative paths are resolved from Heft's buildFolderPath; the default is buildFolderPath itself."
+    },
+    "prefix": {
+      "type": "string",
+      "pattern": "^[a-z]*$",
+      "default": "",
+      "description": "Optional lowercase Tailwind class prefix without punctuation."
+    },
+    "preflight": {
+      "type": "boolean",
+      "default": false,
+      "description": "Include Tailwind Preflight base styles."
+    },
+    "optimize": {
+      "type": "boolean",
+      "description": "Optimize and minify CSS. Defaults to Heft's --production parameter."
+    },
+    "sourceGlobs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": [
+        "src/**/*.{ts,tsx,js,jsx,html}"
+      ],
+      "description": "Source globs watched during incremental builds, relative to projectBase."
+    }
+  }
+}

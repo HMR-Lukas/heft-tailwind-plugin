@@ -1,0 +1,26 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/heft/v0/heft.schema.json",
+  "phasesByName": {
+    "build": {
+      "tasksByName": {
+        "tailwind": {
+          "taskPlugin": {
+            "pluginPackage": "@hmr-lukas/heft-tailwind-plugin",
+            "pluginName": "tailwind-plugin",
+            "options": {}
+          }
+        },
+        "webpack": {
+          "taskDependencies": ["tailwind"],
+          "taskPlugin": {
+            "pluginPackage": "@rushstack/heft",
+            "pluginName": "run-script-plugin",
+            "options": {
+              "scriptPath": "scripts/assert-css.cjs"
+            }
+          }
+        }
+      }
+    }
+  }
+}

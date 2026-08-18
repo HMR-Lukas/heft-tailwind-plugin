@@ -3,7 +3,8 @@
   "taskPlugins": [
     {
       "pluginName": "tailwind-plugin",
-      "entryPoint": "lib/TailwindPlugin.js"
+      "entryPoint": "dist/TailwindPlugin.js",
+      "optionsSchema": "schemas/heft-tailwind-plugin.schema.json"
     }
   ]
 }

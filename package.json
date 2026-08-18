@@ -1,43 +1,82 @@
 {
-  "name": "@derlesh/heft-tailwind-plugin",
+  "name": "@hmr-lukas/heft-tailwind-plugin",
   "version": "1.0.0",
-  "description": "Heft task to prebuild TaildwindCSS v4 with PostCSS",
+  "description": "Tailwind CSS v4 task plugin for Heft and SharePoint Framework projects.",
   "type": "commonjs",
-  "main": "lib/TailwindPlugin.js",
+  "main": "./dist/TailwindPlugin.js",
+  "types": "./dist/TailwindPlugin.d.ts",
   "exports": {
-    ".": "./lib/TailwindPlugin.js"
+    ".": {
+      "types": "./dist/TailwindPlugin.d.ts",
+      "require": "./dist/TailwindPlugin.js",
+      "default": "./dist/TailwindPlugin.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "heft-tailwind": "./dist/cli.js"
   },
   "files": [
-    "lib",
+    "dist",
+    "schemas",
     "heft-plugin.json",
     "README.md",
     "LICENSE"
   ],
+  "sideEffects": false,
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
-  "peerDependencies": {
-    "@tailwindcss/postcss": ">=4.0.0",
-    "postcss": ">=8.4.0"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "keywords": [
     "heft-plugin",
     "heft-tailwind-plugin",
-    "src",
     "postcss",
     "tailwind",
-    "javascript",
-    "spfx"
+    "tailwindcss",
+    "spfx",
+    "sharepoint-framework"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/derLesh/heft-tailwind-plugin.git"
+    "url": "git+https://github.com/HMR-Lukas/heft-tailwind-plugin.git"
   },
+  "homepage": "https://github.com/HMR-Lukas/heft-tailwind-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/HMR-Lukas/heft-tailwind-plugin/issues"
+  },
+  "license": "MIT",
   "scripts": {
-    "build": "shx rm -rf lib && shx mkdir -p lib && shx cp src/*.js lib/",
-    "prepublishOnly": "npm run build"
+    "build": "tsdown",
+    "check": "npm run check:types && npm run check:package",
+    "check:package": "publint --strict",
+    "check:types": "tsc --noEmit",
+    "clean": "tsdown --clean",
+    "dev": "tsdown --watch",
+    "pack:check": "npm pack --dry-run",
+    "pretest": "npm run build",
+    "release": "changeset publish",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validate": "npm run build && npm run check && npm test && npm run pack:check",
+    "version-packages": "changeset version"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
+    "jsonc-parser": "^3.3.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
-    "shx": "^0.3.4"
+    "@changesets/cli": "^2.29.7",
+    "@rushstack/heft": "1.1.2",
+    "@types/node": "^22.18.0",
+    "publint": "^0.3.15",
+    "tsdown": "^0.15.7",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }

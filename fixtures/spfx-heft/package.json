@@ -1,0 +1,9 @@
+{
+  "name": "heft-tailwind-spfx-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimal SPFx-like Heft fixture for @hmr-lukas/heft-tailwind-plugin.",
+  "engines": {
+    "node": ">=22"
+  }
+}
