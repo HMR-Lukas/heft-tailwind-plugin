@@ -57,7 +57,7 @@ npx heft-tailwind init --preflight
 npx heft-tailwind init --dry-run
 ```
 
-It updates `config/heft.json` idempotently, creates `src/global.tailwind.css` when missing, and adds `src/global.css` to `.gitignore`.
+It creates or updates `config/heft.json` idempotently, creates `src/global.tailwind.css` when missing, and adds `src/global.css` to `.gitignore`. Fresh SPFx 1.22 projects that only contain `config/rig.json` are supported.
 
 ## Options
 

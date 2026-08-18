@@ -13,6 +13,12 @@ const PACKAGE_NAME: string = '@hmr-lukas/heft-tailwind-plugin'
 const PLUGIN_NAME: string = 'tailwind-plugin'
 const INPUT_PATH: string = 'src/global.tailwind.css'
 const OUTPUT_PATH: string = 'src/global.css'
+const SPFX_RIG_PACKAGE_NAME: string = '@microsoft/spfx-web-build-rig'
+const DEFAULT_HEFT_CONFIG: string = `{
+  "$schema": "https://developer.microsoft.com/json-schemas/heft/v0/heft.schema.json",
+  "extends": "@microsoft/spfx-web-build-rig/profiles/default/config/heft.json"
+}
+`
 
 export interface IInitializeOptions {
   cwd: string
@@ -134,6 +140,15 @@ function updateGitignore(source: string): string {
   return `${source}${separator}${OUTPUT_PATH}${eol}`
 }
 
+function usesSpfxRig(source: string): boolean {
+  const errors: ParseError[] = []
+  const parsed = parse(source, errors, { allowTrailingComma: true, disallowComments: false }) as
+    | Record<string, unknown>
+    | undefined
+
+  return errors.length === 0 && parsed?.rigPackageName === SPFX_RIG_PACKAGE_NAME
+}
+
 export async function initializeProject(options: IInitializeOptions): Promise<IInitializeResult> {
   const prefix: string | undefined = options.prefix?.trim()
   if (prefix !== undefined && !/^[a-z]*$/.test(prefix)) {
@@ -142,15 +157,21 @@ export async function initializeProject(options: IInitializeOptions): Promise<II
 
   const log: (message: string) => void = options.log ?? (() => undefined)
   const configPath: string = path.join(options.cwd, 'config', 'heft.json')
+  const rigPath: string = path.join(options.cwd, 'config', 'rig.json')
   const inputPath: string = path.join(options.cwd, INPUT_PATH)
   const gitignorePath: string = path.join(options.cwd, '.gitignore')
   const existingConfig: string | undefined = await readOptional(configPath)
 
   if (existingConfig === undefined) {
-    throw new Error('config/heft.json was not found. Run this command from an SPFx project root.')
+    const rigConfig: string | undefined = await readOptional(rigPath)
+    if (rigConfig === undefined || !usesSpfxRig(rigConfig)) {
+      throw new Error(
+        'Neither config/heft.json nor an SPFx config/rig.json was found. Run this command from an SPFx project root.',
+      )
+    }
   }
 
-  const nextConfig: string = updateHeftConfig(existingConfig, {
+  const nextConfig: string = updateHeftConfig(existingConfig ?? DEFAULT_HEFT_CONFIG, {
     preflight: options.preflight,
     prefix,
   })
