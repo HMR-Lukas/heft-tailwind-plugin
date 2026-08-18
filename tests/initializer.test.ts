@@ -7,10 +7,23 @@ import { createTempDirectory } from './helpers'
 
 const temporaryDirectories: string[] = []
 
-async function createProject(): Promise<string> {
+async function createProject(spfxVersion: string = '1.22.2'): Promise<string> {
   const root: string = await createTempDirectory('initializer')
   temporaryDirectories.push(root)
   await fs.mkdir(path.join(root, 'config'), { recursive: true })
+  await fs.writeFile(
+    path.join(root, 'package.json'),
+    JSON.stringify(
+      {
+        devDependencies: {
+          '@microsoft/spfx-web-build-rig': spfxVersion,
+        },
+      },
+      undefined,
+      2,
+    ),
+    'utf8',
+  )
   await fs.writeFile(
     path.join(root, 'config', 'heft.json'),
     `{
@@ -75,6 +88,7 @@ describe('initializeProject', (): void => {
       options: {},
     })
     expect(config.phasesByName.build.tasksByName.webpack.taskDependencies).toEqual(['tailwind'])
+    expect(config.phasesByName.build.tasksByName.sass.taskDependencies).toEqual(['tailwind'])
   })
 
   it('configures an SPFx project idempotently', async (): Promise<void> => {
@@ -94,6 +108,7 @@ describe('initializeProject', (): void => {
       options: { prefix: 'tw', preflight: true },
     })
     expect(tasks.webpack.taskDependencies).toEqual(['typescript', 'tailwind'])
+    expect(tasks.sass.taskDependencies).toEqual(['tailwind'])
     await expect(fs.readFile(path.join(root, 'src', 'global.tailwind.css'), 'utf8')).resolves.toBe(
       '@import "tailwindcss";\n',
     )
@@ -115,5 +130,114 @@ describe('initializeProject', (): void => {
     await expect(fs.stat(path.join(root, 'src', 'global.tailwind.css'))).rejects.toMatchObject({
       code: 'ENOENT',
     })
+  })
+
+  it('configures SPFx 1.23 output as global CSS and migrates an existing import', async (): Promise<void> => {
+    const root: string = await createProject('1.23.2')
+    const webPartPath: string = path.join(root, 'src', 'webparts', 'example', 'ExampleWebPart.ts')
+    await fs.mkdir(path.dirname(webPartPath), { recursive: true })
+    await fs.writeFile(webPartPath, 'import "../../global.css";\n', 'utf8')
+
+    const first = await initializeProject({ cwd: root })
+
+    expect(first.changedFiles).toEqual([
+      'config/heft.json',
+      'src/global.tailwind.css',
+      'src/webparts/example/ExampleWebPart.ts',
+      '.gitignore',
+    ])
+    const config = parse(await fs.readFile(path.join(root, 'config', 'heft.json'), 'utf8'))
+    expect(config.phasesByName.build.tasksByName.tailwind.taskPlugin.options).toEqual({
+      output: 'src/tailwind.global.scss',
+    })
+    await expect(fs.readFile(webPartPath, 'utf8')).resolves.toBe(
+      'import "../../tailwind.global.scss";\n',
+    )
+    await expect(fs.readFile(path.join(root, '.gitignore'), 'utf8')).resolves.toContain(
+      'src/tailwind.global.scss',
+    )
+
+    const second = await initializeProject({ cwd: root })
+    expect(second.changedFiles).toEqual([])
+  })
+
+  it('prefers the installed SPFx version over the declared version range', async (): Promise<void> => {
+    const root: string = await createProject('^1.22.0')
+    const installedRigPath: string = path.join(
+      root,
+      'node_modules',
+      '@microsoft',
+      'spfx-web-build-rig',
+      'package.json',
+    )
+    await fs.mkdir(path.dirname(installedRigPath), { recursive: true })
+    await fs.writeFile(installedRigPath, '{ "version": "1.23.2" }\n', 'utf8')
+
+    await initializeProject({ cwd: root })
+
+    const config = parse(await fs.readFile(path.join(root, 'config', 'heft.json'), 'utf8'))
+    expect(config.phasesByName.build.tasksByName.tailwind.taskPlugin.options.output).toBe(
+      'src/tailwind.global.scss',
+    )
+  })
+
+  it('requires confirmation before configuring a newer SPFx version', async (): Promise<void> => {
+    const root: string = await createProject('1.24.0')
+    const messages: string[] = []
+
+    const cancelled = await initializeProject({
+      cwd: root,
+      log: (message: string): void => {
+        messages.push(message)
+      },
+    })
+
+    expect(cancelled.changedFiles).toEqual([])
+    expect(messages).toContain(
+      'Warning: SPFx 1.24.0 is newer than the supported versions 1.22.x and 1.23.x.',
+    )
+    await expect(fs.stat(path.join(root, 'src', 'global.tailwind.css'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    })
+
+    const confirmed = await initializeProject({
+      confirmUnsupportedVersion: async (): Promise<boolean> => true,
+      cwd: root,
+    })
+    expect(confirmed.changedFiles).toEqual([
+      'config/heft.json',
+      'src/global.tailwind.css',
+      '.gitignore',
+    ])
+    const config = parse(await fs.readFile(path.join(root, 'config', 'heft.json'), 'utf8'))
+    expect(config.phasesByName.build.tasksByName.tailwind.taskPlugin.options.output).toBe(
+      'src/tailwind.global.scss',
+    )
+  })
+
+  it('migrates the preview SPFx 1.23 CSS output to the loader-compatible SCSS name', async (): Promise<void> => {
+    const root: string = await createProject('1.23.2')
+    const configPath: string = path.join(root, 'config', 'heft.json')
+    const webPartPath: string = path.join(root, 'src', 'webparts', 'example', 'ExampleWebPart.ts')
+    await fs.mkdir(path.dirname(webPartPath), { recursive: true })
+    await fs.writeFile(
+      configPath,
+      (await fs.readFile(configPath, 'utf8')).replace(
+        '"webpack": { "taskDependencies": ["typescript"] }',
+        '"tailwind": { "taskPlugin": { "options": { "output": "src/tailwind.global.css" } } },\n        "webpack": { "taskDependencies": ["typescript"] }',
+      ),
+      'utf8',
+    )
+    await fs.writeFile(webPartPath, 'import "../../tailwind.global.css";\n', 'utf8')
+
+    await initializeProject({ cwd: root })
+
+    const config = parse(await fs.readFile(configPath, 'utf8'))
+    expect(config.phasesByName.build.tasksByName.tailwind.taskPlugin.options.output).toBe(
+      'src/tailwind.global.scss',
+    )
+    await expect(fs.readFile(webPartPath, 'utf8')).resolves.toBe(
+      'import "../../tailwind.global.scss";\n',
+    )
   })
 })
