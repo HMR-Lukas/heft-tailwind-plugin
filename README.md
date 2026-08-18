@@ -38,11 +38,15 @@ Create `src/global.tailwind.css`:
 @import "tailwindcss";
 ```
 
-Import the generated file from the SPFx entry point:
+Import the generated file from the WebPart entry point, for example
+`src/webparts/myWebPart/MyWebPartWebPart.ts`:
 
 ```ts
-import './global.css'
+import '../../global.css'
 ```
+
+Import `global.css`, not `global.tailwind.css`. The latter is the Tailwind input file. If your
+WebPart entry point uses a different directory depth, adjust the relative path accordingly.
 
 `heft build` performs a normal build. Heft watch commands use the plugin's incremental task hook and rebuild when the input CSS or matching TS, TSX, JS, JSX, or HTML sources change. The generated CSS is ignored by the plugin's watcher and is only written when its contents change.
 
